@@ -384,7 +384,7 @@ Request.prototype.init = function (options) {
   }
 
   if (self.gzip && !self.hasHeader('accept-encoding')) {
-    self.setHeader('accept-encoding', 'gzip, deflate')
+    self.setHeader('accept-encoding', 'br, gzip, deflate')
   }
 
   if (self.uri.auth && !self.hasHeader('authorization')) {
@@ -1024,7 +1024,10 @@ Request.prototype.onRequestResponse = function (response) {
         finishFlush: zlib.Z_SYNC_FLUSH
       }
 
-      if (contentEncoding === 'gzip') {
+      if (contentEncoding === 'br') {
+        responseContent = zlib.createBrotliDecompress()
+        response.pipe(responseContent)
+      } else if (contentEncoding === 'gzip') {
         responseContent = zlib.createGunzip(zlibOptions)
         response.pipe(responseContent)
       } else if (contentEncoding === 'deflate') {
